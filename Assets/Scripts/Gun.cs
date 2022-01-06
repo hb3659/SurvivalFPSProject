@@ -6,7 +6,7 @@ public class Gun : MonoBehaviour
 {
     public string gunName;              // 총 이름
     public float range;                 // 사정 거리
-    public float accuracy;              // 정확도
+    public float accuracy;              // 총마다의 정확도
     public float fireRate;              // 연사 속도
     public float reloadTime;            // 재장전 속도
 

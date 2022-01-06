@@ -17,9 +17,13 @@ public class PlayerController : MonoBehaviour
     private float jumpForce;
 
     // 상태 변수
-    private bool isRun;
+    private bool isWalk = false;
+    private bool isRun = false;
     private bool isGround = true;
-    private bool isCrouch;
+    private bool isCrouch = false;
+
+    // 움직임 체크 변수
+    private Vector3 lastPos;
 
     // 얼마나 앉을지 결정하는 변수
     [SerializeField]
@@ -43,14 +47,17 @@ public class PlayerController : MonoBehaviour
     private new CapsuleCollider collider;
     [SerializeField]
     private GunController gunController;
+    [SerializeField]
+    private Crosshair crosshair;
 
     // Start is called before the first frame update
     void Start()
     {
         collider = GetComponent<CapsuleCollider>();
         rigid = GetComponent<Rigidbody>();
-        applySpeed = walkSpeed;
 
+        // 초기화
+        applySpeed = walkSpeed;
         originPosY = FirstPersonCamera.transform.localPosition.y;
         applyCrouchPosY = originPosY;
     }
@@ -63,6 +70,7 @@ public class PlayerController : MonoBehaviour
         TryRun();
         TryCrouch();
         Move();
+        MoveCheck();
         CameraRotation();
         CharacterRotation();
     }
@@ -78,6 +86,7 @@ public class PlayerController : MonoBehaviour
     void Crouch()
     {
         isCrouch = !isCrouch;
+        crosshair.CrouchingAnimation(isCrouch);
 
         if (isCrouch)
         {
@@ -99,7 +108,7 @@ public class PlayerController : MonoBehaviour
         float posY = FirstPersonCamera.transform.localPosition.y;
         int count = 0;
 
-        while(posY != applyCrouchPosY)
+        while (posY != applyCrouchPosY)
         {
             count++;
             posY = Mathf.Lerp(posY, applyCrouchPosY, 0.1f);
@@ -118,6 +127,7 @@ public class PlayerController : MonoBehaviour
     void IsGround()
     {
         isGround = Physics.Raycast(transform.position, Vector3.down, collider.bounds.extents.y + 0.1f);
+        crosshair.JumpAnimation(!isGround);
     }
 
     // 점프 시도
@@ -156,6 +166,7 @@ public class PlayerController : MonoBehaviour
         gunController.CancleFineSight();
 
         isRun = true;
+        crosshair.RunningAnimation(isRun);
         applySpeed = runSpeed;
     }
 
@@ -163,6 +174,7 @@ public class PlayerController : MonoBehaviour
     void RunningCancle()
     {
         isRun = false;
+        crosshair.RunningAnimation(isRun);
         applySpeed = walkSpeed;
     }
 
@@ -177,7 +189,22 @@ public class PlayerController : MonoBehaviour
 
         Vector3 velocity = (moveHorizontal + moveVertical).normalized * applySpeed;
 
-        rigid.MovePosition(transform.position + velocity * Time.deltaTime);
+        //rigid.MovePosition(transform.position + velocity * Time.deltaTime);
+        transform.position = transform.position + velocity * Time.deltaTime;
+    }
+
+    void MoveCheck()
+    {
+        if (!isRun && !isCrouch && isGround)
+        {
+            if (Vector3.Distance(lastPos, transform.position) >= .01f)
+                isWalk = true;
+            else
+                isWalk = false;
+
+            crosshair.WalkingAnimation(isWalk);
+            lastPos = transform.position;
+        }
     }
 
     // 상하 카메라 회전

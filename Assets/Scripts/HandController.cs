@@ -2,62 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HandController : MonoBehaviour
+public class HandController : CloseWeaponController
 {
-    // 현재 장책된 Hand형 타입 무기
-    [SerializeField]
-    private Hand currentHand;
-
-    // 공격 중?
-    private bool isAttack = false;
-    private bool isSwing = false;
-
-    private RaycastHit hitInfo;
+    // 활성화 여부
+    public static bool isActivated = false;
 
     void Update()
     {
-        TryAttack();
+        if (isActivated == true)
+            TryAttack();
     }
 
-    void TryAttack()
-    {
-        if (Input.GetButton("Fire1"))
-        {
-            if (!isAttack)
-            {
-                // 코루틴 실행
-                StartCoroutine(AttackCoroutine());
-            }
-        }
-    }
-
-    IEnumerator AttackCoroutine()
-    {
-        isAttack = true;
-        currentHand.animator.SetTrigger("Attack");
-
-        yield return new WaitForSeconds(currentHand.attackDelayA);
-        isSwing = true;
-
-        // 공격 활성화 시점
-        StartCoroutine(HitCoroutine());
-
-        yield return new WaitForSeconds(currentHand.attackDelayB);
-        isSwing = false;
-
-        yield return new WaitForSeconds(currentHand.attackDelay - currentHand.attackDelayA - currentHand.attackDelayB);
-
-        isAttack = false;
-    }
-
-    IEnumerator HitCoroutine()
+    protected override IEnumerator HitCoroutine()
     {
         while (isSwing)
         {
             if (CheckObject())
             {
-                isSwing = !isSwing;
-                // 충돌함
+                isSwing = false;
                 Debug.Log(hitInfo.transform.name);
             }
 
@@ -65,11 +27,10 @@ public class HandController : MonoBehaviour
         }
     }
 
-    bool CheckObject()
+    public override void CloseWeaponChange(CloseWeapon _hand)
     {
-        if (Physics.Raycast(transform.position, transform.forward, out hitInfo, currentHand.range))
-            return true;
+        base.CloseWeaponChange(_hand);
 
-        return false;
+        isActivated = true;
     }
 }
