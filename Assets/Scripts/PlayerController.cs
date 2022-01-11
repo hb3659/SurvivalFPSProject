@@ -22,6 +22,8 @@ public class PlayerController : MonoBehaviour
     private bool isGround = true;
     private bool isCrouch = false;
 
+    private bool pauseCameraRotation = false;
+
     // 움직임 체크 변수
     private Vector3 lastPos;
 
@@ -49,6 +51,8 @@ public class PlayerController : MonoBehaviour
     private GunController gunController;
     [SerializeField]
     private Crosshair crosshair;
+    [SerializeField]
+    private StatusController statusController;
 
     // Start is called before the first frame update
     void Start()
@@ -133,7 +137,7 @@ public class PlayerController : MonoBehaviour
     // 점프 시도
     void TryJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGround)
+        if (Input.GetKeyDown(KeyCode.Space) && isGround && statusController.GetCurrentSP() > 0)
             Jump();
     }
 
@@ -144,15 +148,16 @@ public class PlayerController : MonoBehaviour
         if (isCrouch)
             Crouch();
 
+        statusController.DecreseStamina(100);
         rigid.velocity = transform.up * jumpForce;
     }
 
     // 달리기 시도
     void TryRun()
     {
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && statusController.GetCurrentSP() > 0)
             Running();
-        if (Input.GetKeyUp(KeyCode.LeftShift))
+        if (Input.GetKeyUp(KeyCode.LeftShift) || statusController.GetCurrentSP() <= 0)
             RunningCancle();
     }
 
@@ -167,6 +172,7 @@ public class PlayerController : MonoBehaviour
 
         isRun = true;
         crosshair.RunningAnimation(isRun);
+        statusController.DecreseStamina(10);
         applySpeed = runSpeed;
     }
 
@@ -210,13 +216,36 @@ public class PlayerController : MonoBehaviour
     // 상하 카메라 회전
     void CameraRotation()
     {
-        float xRotation = Input.GetAxisRaw("Mouse Y");
-        float cameraRotationX = xRotation * lookSensitivity;
-        // 카메라 상하반전 (+=, -=)
-        currentCameraRotationX -= cameraRotationX;
-        currentCameraRotationX = Mathf.Clamp(currentCameraRotationX, -cameraRotationLimit, cameraRotationLimit);
+        if (!pauseCameraRotation)
+        {
+            float xRotation = Input.GetAxisRaw("Mouse Y");
+            float cameraRotationX = xRotation * lookSensitivity;
+            // 카메라 상하반전 (+=, -=)
+            currentCameraRotationX -= cameraRotationX;
+            currentCameraRotationX = Mathf.Clamp(currentCameraRotationX, -cameraRotationLimit, cameraRotationLimit);
 
-        FirstPersonCamera.transform.localEulerAngles = new Vector3(currentCameraRotationX, 0f, 0f);
+            FirstPersonCamera.transform.localEulerAngles = new Vector3(currentCameraRotationX, 0f, 0f);
+        }
+    }
+
+    public IEnumerator TreeLookCoroutine(Vector3 _target)
+    {
+        pauseCameraRotation = true;
+
+        Quaternion direction = Quaternion.LookRotation(_target - FirstPersonCamera.transform.position);
+        Vector3 eulerValue = direction.eulerAngles;
+        float destinationX = eulerValue.x;
+
+        while (Mathf.Abs(destinationX - currentCameraRotationX) >= .5f)
+        {
+            eulerValue = Quaternion.Lerp(FirstPersonCamera.transform.localRotation, direction, .3f).eulerAngles;
+            FirstPersonCamera.transform.localRotation = Quaternion.Euler(eulerValue.x, 0f, 0f);
+            currentCameraRotationX = FirstPersonCamera.transform.localEulerAngles.x;
+
+            yield return null;
+        }
+
+        pauseCameraRotation = false;
     }
 
     // 좌우 캐릭터 회전

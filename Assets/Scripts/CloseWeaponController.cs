@@ -15,33 +15,56 @@ public abstract class CloseWeaponController : MonoBehaviour
 
     protected RaycastHit hitInfo;
 
+    // 필요한 컴포넌트
+    private PlayerController player;
+
+    void Start()
+    {
+        player = FindObjectOfType<PlayerController>();
+    }
+
     protected void TryAttack()
     {
         if (Input.GetButton("Fire1"))
         {
             if (!isAttack)
             {
-                // 코루틴 실행
-                StartCoroutine(AttackCoroutine());
+                if (CheckObject())
+                {
+                    if (currentCloseWeapon.isAxe && hitInfo.transform.tag == "Tree")
+                    {
+                        StartCoroutine(player.TreeLookCoroutine(hitInfo.transform.GetComponent<TreeComponent>().GetTreeCenterPosition()));
+                        StartCoroutine(AttackCoroutine("Chop",
+                                                        currentCloseWeapon.workDelayA,
+                                                        currentCloseWeapon.workDelayB,
+                                                        currentCloseWeapon.workDelay));
+                        return;
+                    }
+
+                    StartCoroutine(AttackCoroutine("Attack",
+                                                    currentCloseWeapon.attackDelayA,
+                                                    currentCloseWeapon.attackDelayB,
+                                                    currentCloseWeapon.attackDelay));
+                }
             }
         }
     }
 
-    protected IEnumerator AttackCoroutine()
+    protected IEnumerator AttackCoroutine(string _swingType, float _delayA, float _delayB, float _delayC)
     {
         isAttack = true;
-        currentCloseWeapon.animator.SetTrigger("Attack");
+        currentCloseWeapon.animator.SetTrigger(_swingType);
 
-        yield return new WaitForSeconds(currentCloseWeapon.attackDelayA);
+        yield return new WaitForSeconds(_delayA);
         isSwing = true;
 
         // 공격 활성화 시점
         StartCoroutine(HitCoroutine());
 
-        yield return new WaitForSeconds(currentCloseWeapon.attackDelayB);
+        yield return new WaitForSeconds(_delayB);
         isSwing = false;
 
-        yield return new WaitForSeconds(currentCloseWeapon.attackDelay - currentCloseWeapon.attackDelayA - currentCloseWeapon.attackDelayB);
+        yield return new WaitForSeconds(_delayC - _delayA - _delayB);
 
         isAttack = false;
     }
