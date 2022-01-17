@@ -17,7 +17,7 @@ public class WeaponSway : MonoBehaviour
     // 부드러운 움직임 정도
     [SerializeField]
     private Vector3 smoothSway;
-    
+
     // 필요한 컴포넌트
     [SerializeField]
     private GunController gunController;
@@ -31,12 +31,13 @@ public class WeaponSway : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        TrySway();
+        if (!Inventory.inventoryActivated)
+            TrySway();
     }
 
     void TrySway()
     {
-        if(Input.GetAxisRaw("Mouse X") != 0 || Input.GetAxisRaw("Mouse Y") != 0)
+        if (Input.GetAxisRaw("Mouse X") != 0 || Input.GetAxisRaw("Mouse Y") != 0)
             Swaying();
         else
             BackToOriginPos();

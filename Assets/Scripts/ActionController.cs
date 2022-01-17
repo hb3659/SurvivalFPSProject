@@ -18,13 +18,11 @@ public class ActionController : MonoBehaviour
 
     [SerializeField]
     private TextMeshProUGUI actionText;
+    [SerializeField]
+    private Inventory inventory;
 
     void Update()
     {
-        if (Physics.Raycast(transform.position, transform.forward, out hitInfo, range, layerMask))
-        {
-            Debug.Log(hitInfo.transform.name);
-        }
         CheckItem();
         TryAction();
     }
@@ -43,9 +41,7 @@ public class ActionController : MonoBehaviour
         if (Physics.Raycast(transform.position, transform.forward, out hitInfo, range, layerMask))
         {
             if (hitInfo.transform.tag == "Item")
-            {
                 AppearItemInfo();
-            }
         }
         else
             DisappearItemInfo();
@@ -58,6 +54,7 @@ public class ActionController : MonoBehaviour
             if (hitInfo.transform != null)
             {
                 Debug.Log(hitInfo.transform.GetComponent<ItemPickup>().item.itemName + "¿ª »πµÊ«ﬂΩ¿¥œ¥Ÿ.");
+                inventory.AcquireItem(hitInfo.transform.GetComponent<ItemPickup>().item);
                 Destroy(hitInfo.transform.gameObject);
                 DisappearItemInfo();
             }

@@ -14,6 +14,12 @@ public class Grass : MonoBehaviour
     [SerializeField]
     private GameObject go_effect_prefab;                // ≈∏∞› ¿Ã∆Â∆Æ
 
+    [SerializeField]
+    private Item item_leaf;
+    [SerializeField]
+    private int leafCount;
+    private Inventory inventory;
+
     private Rigidbody[] rigids;
     private Collider[] colliders;
 
@@ -22,6 +28,7 @@ public class Grass : MonoBehaviour
 
     void Start()
     {
+        inventory = FindObjectOfType<Inventory>();
         rigids = this.transform.GetComponentsInChildren<Rigidbody>();
         colliders = this.transform.GetComponentsInChildren<Collider>();
     }
@@ -49,6 +56,8 @@ public class Grass : MonoBehaviour
 
     void Destruction()
     {
+        inventory.AcquireItem(item_leaf, leafCount);
+
         for (int i = 0; i < rigids.Length; i++)
         {
             rigids[i].useGravity = true;

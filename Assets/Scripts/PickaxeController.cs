@@ -6,6 +6,7 @@ public class PickaxeController : CloseWeaponController
 {
     // 활성화 여부
     public static bool isActivated = true;
+
     void Start()
     {
         WeaponManager.currentWeapon = currentCloseWeapon.GetComponent<Transform>();

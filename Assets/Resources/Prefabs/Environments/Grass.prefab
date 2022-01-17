@@ -361,7 +361,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2940465735334384239}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 51.4529, y: 0, z: 54.610195}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
@@ -411,6 +411,8 @@ MonoBehaviour:
   destroyTime: 5
   force: 0.05
   go_effect_prefab: {fileID: 4235176103495333592, guid: de3d8eee8bbc88a42bd1d87897eb2e16, type: 3}
+  item_leaf: {fileID: 11400000, guid: d7cde9cd0dcce074c9bc47fff99d18c0, type: 2}
+  leafCount: 3
   hit_Sound: Twig_Hit
 --- !u!1 &3577448123516931906
 GameObject:
