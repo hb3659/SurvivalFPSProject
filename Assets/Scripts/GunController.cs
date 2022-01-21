@@ -20,6 +20,8 @@ public class GunController : MonoBehaviour
 
     private new AudioSource audio;      // 효과음 재생
     private RaycastHit hitInfo;         // 레이저 충돌 정보 받아오기
+    [SerializeField]
+    private LayerMask layerMask;
 
     // 필요 컴포넌트
     [SerializeField]
@@ -105,7 +107,7 @@ public class GunController : MonoBehaviour
             new Vector3(Random.Range(-crosshair.GetAccuray() - currentGun.accuracy, crosshair.GetAccuray() + currentGun.accuracy),
                         Random.Range(-crosshair.GetAccuray() - currentGun.accuracy, crosshair.GetAccuray() + currentGun.accuracy),
                         0f),
-            out hitInfo, currentGun.range))
+            out hitInfo, currentGun.range, layerMask))
         {
             GameObject clone = Instantiate(hitEffectPrefab, hitInfo.point, Quaternion.LookRotation(hitInfo.normal));
 

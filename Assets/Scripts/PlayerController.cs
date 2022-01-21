@@ -180,6 +180,11 @@ public class PlayerController : MonoBehaviour
         applySpeed = runSpeed;
     }
 
+    public bool GetRun()
+    {
+        return isRun;
+    }
+
     // 달리기 취소
     void RunningCancle()
     {
